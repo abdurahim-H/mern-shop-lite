@@ -26,7 +26,9 @@ About This Course:
 -   🚀Caching with Redis
 -   ⌛ And a lot more...
 
-### Setup .env file
+## Local setup (no Docker)
+
+### 1) Create .env in repo root
 
 ```bash
 PORT=5000
@@ -46,14 +48,52 @@ CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 ```
 
-### Run this app locally
+Notes:
+- Only MongoDB is required to run locally. Redis/Cloudinary/Stripe are optional; related features are skipped until keys are provided.
+- `CLIENT_URL` must match the dev server origin (Vite default is `http://localhost:5173`).
 
-```shell
-npm run build
+### 2) Install dependencies
+
+```bash
+# from repo root
+npm install
+cd frontend && npm install && cd ..
 ```
 
-### Start the app
+### 3) Start in development (two terminals)
 
-```shell
+Terminal A (backend on http://localhost:5000):
+```bash
+npm run dev
+```
+
+Terminal B (frontend on http://localhost:5173):
+```bash
+npm run dev:client
+```
+
+If port 5173 is not reachable at 127.0.0.1, use http://localhost:5173 (Vite listens on IPv6 ::1 by default).
+
+### 4) Production build + run
+
+```bash
+# Build frontend then start backend (serves frontend/dist in production)
+npm run build
 npm run start
 ```
+
+### Health checks / quick verification
+
+- Frontend: open `http://localhost:5173` (dev) or backend `http://localhost:5000` after `npm start` (prod)
+- API examples (require login for protected routes):
+  - `GET http://localhost:5000/api/products` → 401 until authenticated
+  - `GET http://localhost:5000/api/analytics` → 401 until authenticated
+  - Sign up / sign in via the UI to obtain cookies and re-try
+
+### Troubleshooting
+
+- Mongo not running: ensure `mongod` is installed and started (or use a MongoDB Atlas URI in `MONGO_URI`).
+- Vite dev server not opening on 127.0.0.1: use `http://localhost:5173`.
+- Port conflicts: change `PORT` in `.env` and update `frontend/src/lib/axios.js` baseURL if you change backend port in dev.
+- Missing external keys: Cloudinary/Stripe/Redis features will be disabled; core app still runs.
+
